@@ -23,7 +23,8 @@
     }
   },
   "workspaces": [
-    "apps/*",
+    "web",
+    "docs",
     "packages/*"
   ]
 }
