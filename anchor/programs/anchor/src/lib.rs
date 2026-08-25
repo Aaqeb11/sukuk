@@ -30,6 +30,30 @@ pub mod anchor {
 
         Ok(())
     }
+
+    /// Mints fractional ownership units to an investor.
+    /// TODO: enforce allowlist before minting.
+    pub fn mint_units(_ctx: Context<MintUnits>, _amount: u64) -> Result<()> {
+        Ok(())
+    }
+
+    /// Distributes a period's rent pro-rata across current holders.
+    /// `rent_collected` is supplied by the off-chain attestation source (mocked in the PoC).
+    /// MUST be a pro-rata share of actual rent, never a fixed guaranteed return.
+    pub fn distribute_profit(_ctx: Context<DistributeProfit>, _rent_collected: u64) -> Result<()> {
+        Ok(())
+    }
+
+    /// Lessee buys back a slice of ownership; those units are burned.
+    /// This is the Diminishing Musharaka mechanic — units_outstanding shrinks each period.
+    pub fn buyback_and_burn(_ctx: Context<BuybackAndBurn>, _units: u64) -> Result<()> {
+        Ok(())
+    }
+
+    /// Closes the instrument once units_outstanding reaches zero.
+    pub fn redeem(_ctx: Context<Redeem>) -> Result<()> {
+        Ok(())
+    }
 }
 
 // ---------- State ----------
@@ -74,6 +98,78 @@ pub struct InitializeSukuk<'info> {
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
     pub rent: Sysvar<'info, Rent>,
+}
+
+#[derive(Accounts)]
+pub struct MintUnits<'info> {
+    #[account(
+        mut,
+        seeds = [b"sukuk", sukuk_asset.asset_id.to_le_bytes().as_ref()],
+        bump = sukuk_asset.bump,
+        has_one = authority,
+        has_one = mint,
+    )]
+    pub sukuk_asset: Account<'info, SukukAsset>,
+
+    #[account(mut)]
+    pub mint: Account<'info, Mint>,
+
+    #[account(mut)]
+    pub investor_token_account: Account<'info, TokenAccount>,
+
+    pub authority: Signer<'info>,
+    pub token_program: Program<'info, Token>,
+}
+
+#[derive(Accounts)]
+pub struct DistributeProfit<'info> {
+    #[account(
+        mut,
+        seeds = [b"sukuk", sukuk_asset.asset_id.to_le_bytes().as_ref()],
+        bump = sukuk_asset.bump,
+        has_one = authority,
+    )]
+    pub sukuk_asset: Account<'info, SukukAsset>,
+
+    #[account(mut)]
+    pub authority: Signer<'info>,
+
+    pub system_program: Program<'info, System>,
+    // Holder accounts passed via ctx.remaining_accounts (PoC: small known set).
+}
+
+#[derive(Accounts)]
+pub struct BuybackAndBurn<'info> {
+    #[account(
+        mut,
+        seeds = [b"sukuk", sukuk_asset.asset_id.to_le_bytes().as_ref()],
+        bump = sukuk_asset.bump,
+        has_one = authority,
+        has_one = mint,
+    )]
+    pub sukuk_asset: Account<'info, SukukAsset>,
+
+    #[account(mut)]
+    pub mint: Account<'info, Mint>,
+
+    #[account(mut)]
+    pub holder_token_account: Account<'info, TokenAccount>,
+
+    pub authority: Signer<'info>,
+    pub token_program: Program<'info, Token>,
+}
+
+#[derive(Accounts)]
+pub struct Redeem<'info> {
+    #[account(
+        mut,
+        seeds = [b"sukuk", sukuk_asset.asset_id.to_le_bytes().as_ref()],
+        bump = sukuk_asset.bump,
+        has_one = authority,
+    )]
+    pub sukuk_asset: Account<'info, SukukAsset>,
+
+    pub authority: Signer<'info>,
 }
 
 // ---------- Errors ----------
