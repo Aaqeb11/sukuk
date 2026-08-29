@@ -4,7 +4,9 @@ use anchor_spl::token::{self, Burn, Mint, MintTo, Token, TokenAccount};
 declare_id!("GS18oFeFhDvUzuiVEoe1HTT7gGMhULy2RZzLZibzs4Zd");
 
 #[program]
-pub mod anchor {
+pub mod sukuk {
+    use crate::SukukError::MathOverflow;
+
     use super::*;
 
     /// Creates the SukukAsset PDA and the SPL mint for ownership units.
@@ -33,7 +35,45 @@ pub mod anchor {
 
     /// Mints fractional ownership units to an investor.
     /// TODO: enforce allowlist before minting.
-    pub fn mint_units(_ctx: Context<MintUnits>, _amount: u64) -> Result<()> {
+    pub fn mint_units(ctx: Context<MintUnits>, amount: u64) -> Result<()> {
+        let asset = &mut ctx.accounts.sukuk_asset;
+        require!(!asset.is_closed, SukukError::AlreadyClosed);
+        require!(amount > 0, SukukError::InvalidUnitCount);
+
+        // Cannot issue more than the total units defined at issuance.
+        let new_issued = asset
+            .units_issued
+            .checked_add(amount)
+            .ok_or(SukukError::MathOverflow)?;
+
+        require!(
+            new_issued <= asset.total_units,
+            SukukError::InsufficientUnits
+        );
+
+        // The PDA has no private key, so the program signs on its behalf with the seeds.
+        let asset_id_bytes = asset.asset_id.to_le_bytes();
+        let signer_seeds: &[&[&[u8]]] = &[&[b"sukuk", asset_id_bytes.as_ref(), &[asset.bump]]];
+
+        let cpi_accounts = MintTo {
+            mint: ctx.accounts.mint.to_account_info(),
+            to: ctx.accounts.investor_token_account.to_account_info(),
+            authority: ctx.accounts.sukuk_asset.to_account_info(),
+        };
+        let cpi_ctx = CpiContext::new_with_signer(
+            ctx.accounts.token_program.to_account_info(),
+            cpi_accounts,
+            signer_seeds,
+        );
+        token::mint_to(cpi_ctx, amount)?;
+
+        let asset = &mut ctx.accounts.sukuk_asset;
+        asset.units_issued = new_issued;
+        asset.units_outstanding = asset
+            .units_outstanding
+            .checked_add(amount)
+            .ok_or(SukukError::MathOverflow)?;
+
         Ok(())
     }
 
