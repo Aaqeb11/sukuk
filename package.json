@@ -9,9 +9,14 @@
     "check-types": "turbo run check-types"
   },
   "devDependencies": {
+    "@types/chai": "^5.2.3",
+    "@types/mocha": "^10.0.10",
+    "chai": "^6.2.2",
+    "litesvm": "^1.4.1",
     "prettier": "^3.7.4",
+    "ts-mocha": "^11.1.0",
     "turbo": "^2.10.11",
-    "typescript": "5.9.2"
+    "typescript": "^7.0.2"
   },
   "engines": {
     "node": ">=18"
@@ -26,5 +31,10 @@
     "web",
     "docs",
     "packages/*"
-  ]
+  ],
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.32.1",
+    "@solana/spl-token": "^0.4.15",
+    "@solana/web3.js": "^1.98.4"
+  }
 }
