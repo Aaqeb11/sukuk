@@ -36,7 +36,7 @@ pub mod sukuk {
     /// Mints fractional ownership units to an investor.
     /// The PDA is the mint authority, so minting can only happen through this instruction.
     /// TODO: enforce allowlist before minting.
-    pub fn mint_units(ctx: Context<MintUnits>, asset_id: u64, amount: u64) -> Result<()> {
+    pub fn mint_units(ctx: Context<MintUnits>, _asset_id: u64, amount: u64) -> Result<()> {
         let asset = &ctx.accounts.sukuk_asset;
         require!(!asset.is_closed, SukukError::AlreadyClosed);
         require!(amount > 0, SukukError::InvalidAmount);
