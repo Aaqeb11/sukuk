@@ -36,10 +36,15 @@ pub mod sukuk {
     /// Mints fractional ownership units to an investor.
     /// The PDA is the mint authority, so minting can only happen through this instruction.
     /// TODO: enforce allowlist before minting.
-    pub fn mint_units(ctx: Context<MintUnits>, amount: u64) -> Result<()> {
-        let asset = &mut ctx.accounts.sukuk_asset;
+    pub fn mint_units(ctx: Context<MintUnits>, asset_id: u64, amount: u64) -> Result<()> {
+        let asset = &ctx.accounts.sukuk_asset;
         require!(!asset.is_closed, SukukError::AlreadyClosed);
-        require!(amount > 0, SukukError::InvalidUnitCount);
+        require!(amount > 0, SukukError::InvalidAmount);
+        require_keys_eq!(
+            ctx.accounts.investor_token_account.mint,
+            asset.mint,
+            SukukError::WrongMint
+        );
 
         // Cannot issue more than the total units defined at issuance.
         let new_issued = asset
@@ -287,10 +292,11 @@ pub struct InitializeSukuk<'info> {
 }
 
 #[derive(Accounts)]
+#[instruction(asset_id: u64)]
 pub struct MintUnits<'info> {
     #[account(
         mut,
-        seeds = [b"sukuk", sukuk_asset.asset_id.to_le_bytes().as_ref()],
+        seeds = [b"sukuk", asset_id.to_le_bytes().as_ref()],
         bump = sukuk_asset.bump,
         has_one = authority,
         has_one = mint,

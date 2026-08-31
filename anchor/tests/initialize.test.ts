@@ -1,6 +1,11 @@
 import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
-import { Keypair, PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY } from "@solana/web3.js";
+import {
+  Keypair,
+  PublicKey,
+  SystemProgram,
+  SYSVAR_RENT_PUBKEY,
+} from "@solana/web3.js";
 import { TOKEN_PROGRAM_ID, getMint } from "@solana/spl-token";
 import { assert } from "chai";
 import { Sukuk } from "../target/types/sukuk";
@@ -23,7 +28,7 @@ describe("initialize_sukuk", () => {
     buf.writeBigUInt64LE(BigInt(assetId));
     return PublicKey.findProgramAddressSync(
       [Buffer.from("sukuk"), buf],
-      program.programId
+      program.programId,
     );
   }
 
@@ -86,11 +91,11 @@ describe("initialize_sukuk", () => {
     // so minting can only happen through the program's own instruction.
     assert.ok(
       mint.mintAuthority?.equals(sukukPda),
-      "mint authority must be the Sukuk PDA"
+      "mint authority must be the Sukuk PDA",
     );
     assert.isFalse(
       mint.mintAuthority?.equals(authority.publicKey),
-      "mint authority must NOT be the issuer wallet"
+      "mint authority must NOT be the issuer wallet",
     );
 
     // Ownership units are indivisible.
