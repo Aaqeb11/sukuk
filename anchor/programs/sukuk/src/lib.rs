@@ -94,6 +94,7 @@ pub mod sukuk {
     /// Every wallet must be writable. PoC only: a small, known set of holders.
     pub fn distribute_profit<'info>(
         ctx: Context<'_, '_, 'info, 'info, DistributeProfit<'info>>,
+        _asset_id: u64,
         rent_collected: u64,
     ) -> Result<()> {
         let asset = &ctx.accounts.sukuk_asset;
@@ -181,7 +182,11 @@ pub mod sukuk {
     /// PoC note: the holder signs to authorize the burn. In production the buyback is
     /// pre-agreed in the lease contract, so the holder would delegate burn authority to
     /// the PDA at mint time and the burn would run pro-rata across all holders.
-    pub fn buyback_and_burn(ctx: Context<BuybackAndBurn>, units: u64) -> Result<()> {
+    pub fn buyback_and_burn(
+        ctx: Context<BuybackAndBurn>,
+        _asset_id: u64,
+        units: u64,
+    ) -> Result<()> {
         let asset = &ctx.accounts.sukuk_asset;
         require!(!asset.is_closed, SukukError::AlreadyClosed);
         require!(units > 0, SukukError::InvalidAmount);
@@ -227,7 +232,7 @@ pub mod sukuk {
 
     /// Closes the instrument once units_outstanding reaches zero.
     /// Triggered by state, not by choice — the issuer cannot close early.
-    pub fn redeem(ctx: Context<Redeem>) -> Result<()> {
+    pub fn redeem(ctx: Context<Redeem>, _asset_id: u64) -> Result<()> {
         let asset = &mut ctx.accounts.sukuk_asset;
         require!(!asset.is_closed, SukukError::AlreadyClosed);
         require!(
@@ -314,10 +319,11 @@ pub struct MintUnits<'info> {
 }
 
 #[derive(Accounts)]
+#[instruction(asset_id: u64)]
 pub struct DistributeProfit<'info> {
     #[account(
         mut,
-        seeds = [b"sukuk", sukuk_asset.asset_id.to_le_bytes().as_ref()],
+        seeds = [b"sukuk", asset_id.to_le_bytes().as_ref()],
         bump = sukuk_asset.bump,
         has_one = authority,
     )]
@@ -331,10 +337,11 @@ pub struct DistributeProfit<'info> {
 }
 
 #[derive(Accounts)]
+#[instruction(asset_id: u64)]
 pub struct BuybackAndBurn<'info> {
     #[account(
         mut,
-        seeds = [b"sukuk", sukuk_asset.asset_id.to_le_bytes().as_ref()],
+        seeds = [b"sukuk", asset_id.to_le_bytes().as_ref()],
         bump = sukuk_asset.bump,
         has_one = authority,
         has_one = mint,
@@ -355,10 +362,11 @@ pub struct BuybackAndBurn<'info> {
 }
 
 #[derive(Accounts)]
+#[instruction(asset_id: u64)]
 pub struct Redeem<'info> {
     #[account(
         mut,
-        seeds = [b"sukuk", sukuk_asset.asset_id.to_le_bytes().as_ref()],
+        seeds = [b"sukuk", asset_id.to_le_bytes().as_ref()],
         bump = sukuk_asset.bump,
         has_one = authority,
     )]
