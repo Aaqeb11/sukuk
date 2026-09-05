@@ -6,7 +6,7 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-sukuk = "GS18oFeFhDvUzuiVEoe1HTT7gGMhULy2RZzLZibzs4Zd"
+sukuk = "E3qnd2CcmPqfk3BbTD5czpbGr3Bv7BMedriBcCT94pYu"
 
 [registry]
 url = "https://api.apr.dev"

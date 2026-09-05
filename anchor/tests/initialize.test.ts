@@ -4,7 +4,6 @@ import {
   Keypair,
   PublicKey,
   SystemProgram,
-  SYSVAR_RENT_PUBKEY,
 } from "@solana/web3.js";
 import { TOKEN_PROGRAM_ID, getMint } from "@solana/spl-token";
 import { assert } from "chai";
@@ -49,7 +48,6 @@ describe("initialize_sukuk", () => {
         authority: authority.publicKey,
         systemProgram: SystemProgram.programId,
         tokenProgram: TOKEN_PROGRAM_ID,
-        rent: SYSVAR_RENT_PUBKEY,
       })
       .signers([mintKeypair])
       .rpc();
@@ -80,7 +78,6 @@ describe("initialize_sukuk", () => {
         authority: authority.publicKey,
         systemProgram: SystemProgram.programId,
         tokenProgram: TOKEN_PROGRAM_ID,
-        rent: SYSVAR_RENT_PUBKEY,
       })
       .signers([mintKeypair])
       .rpc();
@@ -117,7 +114,6 @@ describe("initialize_sukuk", () => {
           authority: authority.publicKey,
           systemProgram: SystemProgram.programId,
           tokenProgram: TOKEN_PROGRAM_ID,
-          rent: SYSVAR_RENT_PUBKEY,
         })
         .signers([mintKeypair])
         .rpc();
@@ -141,7 +137,6 @@ describe("initialize_sukuk", () => {
         authority: authority.publicKey,
         systemProgram: SystemProgram.programId,
         tokenProgram: TOKEN_PROGRAM_ID,
-        rent: SYSVAR_RENT_PUBKEY,
       })
       .signers([first])
       .rpc();
@@ -158,7 +153,6 @@ describe("initialize_sukuk", () => {
           authority: authority.publicKey,
           systemProgram: SystemProgram.programId,
           tokenProgram: TOKEN_PROGRAM_ID,
-          rent: SYSVAR_RENT_PUBKEY,
         })
         .signers([second])
         .rpc();

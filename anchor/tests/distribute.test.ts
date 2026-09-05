@@ -4,7 +4,6 @@ import {
   Keypair,
   PublicKey,
   SystemProgram,
-  SYSVAR_RENT_PUBKEY,
   LAMPORTS_PER_SOL,
 } from "@solana/web3.js";
 import {
@@ -66,7 +65,6 @@ describe("distribute-profit", () => {
         authority: authority.publicKey,
         systemProgram: SystemProgram.programId,
         tokenProgram: TOKEN_PROGRAM_ID,
-        rent: SYSVAR_RENT_PUBKEY,
       })
       .signers([mintKeypair])
       .rpc();

@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 use anchor_lang::system_program;
 use anchor_spl::token::{self, Burn, Mint, MintTo, Token, TokenAccount};
 
-declare_id!("GS18oFeFhDvUzuiVEoe1HTT7gGMhULy2RZzLZibzs4Zd");
+declare_id!("E3qnd2CcmPqfk3BbTD5czpbGr3Bv7BMedriBcCT94pYu");
 
 #[program]
 pub mod sukuk {
@@ -293,7 +293,6 @@ pub struct InitializeSukuk<'info> {
 
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
-    pub rent: Sysvar<'info, Rent>,
 }
 
 #[derive(Accounts)]
