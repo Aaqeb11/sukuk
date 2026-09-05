@@ -3,7 +3,8 @@ use anchor_spl::token::{self, Burn, Mint, Token, TokenAccount};
 
 use crate::constants::SUKUK_SEED;
 use crate::states::SukukAsset;
-use crate::{SukukError, UnitsBoughtBack};
+use crate::errors::SukukError;
+use crate::events::UnitsBoughtBack;
 
 #[derive(Accounts)]
 #[instruction(asset_id: u64)]

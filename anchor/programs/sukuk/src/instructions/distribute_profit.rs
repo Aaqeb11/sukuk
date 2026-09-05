@@ -4,7 +4,8 @@ use anchor_spl::token::TokenAccount;
 
 use crate::constants::SUKUK_SEED;
 use crate::states::SukukAsset;
-use crate::{ProfitDistributed, SukukError};
+use crate::errors::SukukError;
+use crate::events::ProfitDistributed;
 
 #[derive(Accounts)]
 #[instruction(asset_id: u64)]

@@ -3,7 +3,7 @@ use anchor_spl::token::{self, Mint, MintTo, Token, TokenAccount};
 
 use crate::constants::SUKUK_SEED;
 use crate::states::SukukAsset;
-use crate::SukukError;
+use crate::errors::SukukError;
 
 #[derive(Accounts)]
 #[instruction(asset_id: u64)]

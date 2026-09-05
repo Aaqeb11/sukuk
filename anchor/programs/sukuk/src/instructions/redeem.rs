@@ -2,7 +2,8 @@ use anchor_lang::prelude::*;
 
 use crate::constants::SUKUK_SEED;
 use crate::states::SukukAsset;
-use crate::{SukukError, SukukRedeemed};
+use crate::errors::SukukError;
+use crate::events::SukukRedeemed;
 
 #[derive(Accounts)]
 #[instruction(asset_id: u64)]

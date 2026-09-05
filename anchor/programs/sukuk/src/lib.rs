@@ -1,6 +1,8 @@
 use anchor_lang::prelude::*;
 
 pub mod constants;
+pub mod errors;
+pub mod events;
 pub mod instructions;
 pub mod states;
 
@@ -62,56 +64,4 @@ pub mod sukuk {
     pub fn redeem(ctx: Context<Redeem>, asset_id: u64) -> Result<()> {
         instructions::redeem::handler(ctx, asset_id)
     }
-}
-
-// ---------- Events ----------
-
-#[event]
-pub struct ProfitDistributed {
-    pub asset_id: u64,
-    pub period: u32,
-    pub rent_collected: u64,
-    pub distributed: u64,
-}
-
-#[event]
-pub struct UnitsBoughtBack {
-    pub asset_id: u64,
-    pub units: u64,
-    pub units_outstanding: u64,
-}
-
-#[event]
-pub struct SukukRedeemed {
-    pub asset_id: u64,
-    pub periods_elapsed: u32,
-    pub total_distributed: u64,
-}
-
-// ---------- Errors ----------
-
-#[error_code]
-pub enum SukukError {
-    #[msg("Total units must be greater than zero")]
-    InvalidUnitCount,
-    #[msg("Amount must be greater than zero")]
-    InvalidAmount,
-    #[msg("Not enough unissued units remaining")]
-    InsufficientUnits,
-    #[msg("This Sukuk is already closed")]
-    AlreadyClosed,
-    #[msg("Units still outstanding; cannot redeem yet")]
-    UnitsStillOutstanding,
-    #[msg("No units outstanding to distribute to")]
-    NoUnitsOutstanding,
-    #[msg("Investor is not on the allowlist")]
-    NotAllowlisted,
-    #[msg("Token account does not belong to this Sukuk's mint")]
-    WrongMint,
-    #[msg("Token account owner does not match the wallet provided")]
-    HolderMismatch,
-    #[msg("Holder accounts must be provided as [token_account, wallet] pairs")]
-    InvalidHolderAccounts,
-    #[msg("Arithmetic overflow")]
-    MathOverflow,
 }
