@@ -30,7 +30,8 @@
   "workspaces": [
     "web",
     "docs",
-    "packages/*"
+    "packages/*",
+    "api"
   ],
   "dependencies": {
     "@coral-xyz/anchor": "^0.32.1",

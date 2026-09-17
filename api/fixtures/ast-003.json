@@ -1,0 +1,37 @@
+{
+  "asset_id": "AST-003",
+  "asset_type": "real_estate",
+  "name": "Business Bay Mixed-Use Block",
+  "valuation": 33000000,
+  "currency": "AED",
+  "jurisdiction": "AE-DU",
+
+  "_demo_note": "Fails screening on three conditions. Structurally this is a conventional loan wearing a lease: buyback is fixed at par (guaranteeing principal), the lessee carries every ownership risk, and the anchor tenant is a conventional bank branch (impure rental income). A board would reject this; the engine explains why without a board in the loop.",
+
+  "ownership": {
+    "title_reference": "DLD-2025-10442",
+    "clear_title": true,
+    "encumbered": false,
+    "transferable": true
+  },
+
+  "income": {
+    "type": "rent",
+    "annual_amount": 2640000,
+    "currency": "AED",
+    "impure_proportion": 0.18
+  },
+
+  "tenant": {
+    "name": "Continental Credit Bank",
+    "activity": "conventional_banking",
+    "lease_term_years": 12
+  },
+
+  "structure": {
+    "type": "diminishing-musharaka",
+    "tangible_proportion": 0.79,
+    "ownership_risk_retained": false,
+    "buyback_at_par": true
+  }
+}
