@@ -63,6 +63,7 @@ describe("buyback-redeem", () => {
       .accountsPartial({
         sukukAsset: sukukPda,
         mint: mintKeypair.publicKey,
+        payer: authority.publicKey,
         authority: authority.publicKey,
         systemProgram: SystemProgram.programId,
         tokenProgram: TOKEN_PROGRAM_ID,
@@ -369,6 +370,7 @@ describe("buyback-redeem", () => {
         .distributeProfit(new anchor.BN(assetId), new anchor.BN(1_000_000))
         .accountsPartial({
           sukukAsset: sukukPda,
+          distributor: authority.publicKey,
           authority: authority.publicKey,
           systemProgram: SystemProgram.programId,
         })

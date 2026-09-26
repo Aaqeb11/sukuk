@@ -49,6 +49,7 @@ describe("mint-units", () => {
       .accountsPartial({
         sukukAsset: sukukPda,
         mint: mintKeypair.publicKey,
+        payer: authority.publicKey,
         authority: authority.publicKey,
         systemProgram: SystemProgram.programId,
         tokenProgram: TOKEN_PROGRAM_ID,

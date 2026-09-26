@@ -90,6 +90,7 @@ describe("sukuk lifecycle", () => {
       .accountsPartial({
         sukukAsset: sukukPda,
         mint,
+        payer: authority.publicKey,
         authority: authority.publicKey,
         systemProgram: SystemProgram.programId,
         tokenProgram: TOKEN_PROGRAM_ID,
@@ -147,6 +148,7 @@ describe("sukuk lifecycle", () => {
       .distributeProfit(new anchor.BN(id), new anchor.BN(1_000_000))
       .accountsPartial({
         sukukAsset: sukukPda,
+        distributor: authority.publicKey,
         authority: authority.publicKey,
         systemProgram: SystemProgram.programId,
       })
@@ -214,6 +216,7 @@ describe("sukuk lifecycle", () => {
       .distributeProfit(new anchor.BN(id), new anchor.BN(700_000))
       .accountsPartial({
         sukukAsset: sukukPda,
+        distributor: authority.publicKey,
         authority: authority.publicKey,
         systemProgram: SystemProgram.programId,
       })
@@ -337,6 +340,7 @@ describe("sukuk lifecycle", () => {
         .distributeProfit(new anchor.BN(id), new anchor.BN(1000))
         .accountsPartial({
           sukukAsset: sukukPda,
+          distributor: authority.publicKey,
           authority: authority.publicKey,
           systemProgram: SystemProgram.programId,
         })

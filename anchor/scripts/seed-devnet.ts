@@ -108,6 +108,7 @@ async function main() {
       .accountsPartial({
         sukukAsset: sukukPda,
         mint,
+        payer: authority.publicKey,
         authority: authority.publicKey,
         systemProgram: SystemProgram.programId,
         tokenProgram: TOKEN_PROGRAM_ID,
@@ -169,6 +170,7 @@ async function main() {
       .distributeProfit(new anchor.BN(ASSET_ID), new anchor.BN(10_000_000))
       .accountsPartial({
         sukukAsset: sukukPda,
+        distributor: authority.publicKey,
         authority: authority.publicKey,
         systemProgram: SystemProgram.programId,
       })
@@ -209,6 +211,7 @@ async function main() {
       .distributeProfit(new anchor.BN(ASSET_ID), new anchor.BN(7_000_000))
       .accountsPartial({
         sukukAsset: sukukPda,
+        distributor: authority.publicKey,
         authority: authority.publicKey,
         systemProgram: SystemProgram.programId,
       })

@@ -3,9 +3,9 @@ use anchor_lang::system_program;
 use anchor_spl::token::TokenAccount;
 
 use crate::constants::SUKUK_SEED;
-use crate::states::SukukAsset;
 use crate::errors::SukukError;
 use crate::events::ProfitDistributed;
+use crate::states::SukukAsset;
 
 #[derive(Accounts)]
 #[instruction(asset_id: u64)]
@@ -18,7 +18,15 @@ pub struct DistributeProfit<'info> {
     )]
     pub sukuk_asset: Account<'info, SukukAsset>,
 
+    /// Source of the rent being paid out — the lessee's collection wallet.
+    /// Debited by the transfers below, so it must be writable.
     #[account(mut)]
+    pub distributor: Signer<'info>,
+
+    /// Authorises the distribution. Checked against the recorded issuer by
+    /// `has_one`. Deliberately NOT `mut`: this key lives in custody and has no
+    /// way to be funded, so the runtime refusing to debit it is the guarantee
+    /// rather than a convention we're trusting ourselves to keep.
     pub authority: Signer<'info>,
 
     pub system_program: Program<'info, System>,
@@ -87,7 +95,7 @@ pub(crate) fn handler<'info>(
         let cpi_ctx = CpiContext::new(
             ctx.accounts.system_program.to_account_info(),
             system_program::Transfer {
-                from: ctx.accounts.authority.to_account_info(),
+                from: ctx.accounts.distributor.to_account_info(), // was: authority
                 to: wallet_info.clone(),
             },
         );

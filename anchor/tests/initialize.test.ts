@@ -14,7 +14,25 @@ describe("initialize_sukuk", () => {
   anchor.setProvider(provider);
 
   const program = anchor.workspace.Sukuk as Program<Sukuk>;
-  const authority = provider.wallet as anchor.Wallet;
+
+  /**
+   * Pays rent for the two accounts this instruction creates. An operational
+   * hot wallet: it holds SOL and authorises nothing.
+   */
+  const payer = provider.wallet as anchor.Wallet;
+
+  /**
+   * Stands in for the custody-held issuance key.
+   *
+   * In production this public key comes back from Vault (or a Luna HSM) and
+   * no corresponding private key exists anywhere in this process. Here it has
+   * to be a local keypair, because the tests need something that can sign.
+   *
+   * What matters is that it is NOT the payer and is never funded. Every test
+   * below signs with it while it holds zero lamports, which is the property
+   * the payer/authority split exists to make true.
+   */
+  const issuanceAuthority = Keypair.generate();
 
   /**
    * The PDA seeds are [b"sukuk", asset_id.to_le_bytes()].
@@ -45,11 +63,12 @@ describe("initialize_sukuk", () => {
       .accounts({
         sukukAsset: sukukPda,
         mint: mintKeypair.publicKey,
-        authority: authority.publicKey,
+        payer: payer.publicKey,
+        authority: issuanceAuthority.publicKey,
         systemProgram: SystemProgram.programId,
         tokenProgram: TOKEN_PROGRAM_ID,
       })
-      .signers([mintKeypair])
+      .signers([mintKeypair, issuanceAuthority])
       .rpc();
 
     const asset = await program.account.sukukAsset.fetch(sukukPda);
@@ -61,8 +80,52 @@ describe("initialize_sukuk", () => {
     assert.equal(asset.periodsElapsed, 0);
     assert.equal(asset.totalDistributed.toNumber(), 0);
     assert.isFalse(asset.isClosed);
-    assert.ok(asset.authority.equals(authority.publicKey));
     assert.ok(asset.mint.equals(mintKeypair.publicKey));
+
+    // The authority recorded on-chain is the custody key, not whoever paid.
+    // Every later instruction checks `has_one = authority`, so this is the
+    // field that decides who can mint, distribute and redeem for the life of
+    // the Sukuk.
+    assert.ok(asset.authority.equals(issuanceAuthority.publicKey));
+    assert.isFalse(
+      asset.authority.equals(payer.publicKey),
+      "the payer must not end up as the recorded authority",
+    );
+  });
+
+  it("issues without the authority ever holding lamports", async () => {
+    const assetId = 5;
+    const [sukukPda] = deriveSukukPda(assetId);
+    const mintKeypair = Keypair.generate();
+
+    const before = await provider.connection.getBalance(
+      issuanceAuthority.publicKey,
+    );
+    assert.equal(before, 0, "the authority starts unfunded");
+
+    await program.methods
+      .initializeSukuk(new anchor.BN(assetId), new anchor.BN(100))
+      .accounts({
+        sukukAsset: sukukPda,
+        mint: mintKeypair.publicKey,
+        payer: payer.publicKey,
+        authority: issuanceAuthority.publicKey,
+        systemProgram: SystemProgram.programId,
+        tokenProgram: TOKEN_PROGRAM_ID,
+      })
+      .signers([mintKeypair, issuanceAuthority])
+      .rpc();
+
+    const after = await provider.connection.getBalance(
+      issuanceAuthority.publicKey,
+    );
+
+    // This is the test that makes the custody story true rather than merely
+    // stated. A key inside an HSM has no way to be topped up, so if issuance
+    // required it to pay rent, the whole boundary would collapse into a hot
+    // wallet with extra steps. `payer = payer` and a non-`mut` authority mean
+    // the runtime itself refuses to debit this account.
+    assert.equal(after, 0, "the authority must never need or spend SOL");
   });
 
   it("sets the PDA as mint authority, not the issuer wallet", async () => {
@@ -75,11 +138,12 @@ describe("initialize_sukuk", () => {
       .accounts({
         sukukAsset: sukukPda,
         mint: mintKeypair.publicKey,
-        authority: authority.publicKey,
+        payer: payer.publicKey,
+        authority: issuanceAuthority.publicKey,
         systemProgram: SystemProgram.programId,
         tokenProgram: TOKEN_PROGRAM_ID,
       })
-      .signers([mintKeypair])
+      .signers([mintKeypair, issuanceAuthority])
       .rpc();
 
     const mint = await getMint(provider.connection, mintKeypair.publicKey);
@@ -91,8 +155,14 @@ describe("initialize_sukuk", () => {
       "mint authority must be the Sukuk PDA",
     );
     assert.isFalse(
-      mint.mintAuthority?.equals(authority.publicKey),
-      "mint authority must NOT be the issuer wallet",
+      mint.mintAuthority?.equals(payer.publicKey),
+      "mint authority must NOT be the paying wallet",
+    );
+    // Nor the custody key. Even a compromised HSM cannot mint units directly;
+    // it can only ask the program to, and the program enforces the supply cap.
+    assert.isFalse(
+      mint.mintAuthority?.equals(issuanceAuthority.publicKey),
+      "mint authority must NOT be the issuance authority either",
     );
 
     // Ownership units are indivisible.
@@ -111,11 +181,12 @@ describe("initialize_sukuk", () => {
         .accounts({
           sukukAsset: sukukPda,
           mint: mintKeypair.publicKey,
-          authority: authority.publicKey,
+          payer: payer.publicKey,
+          authority: issuanceAuthority.publicKey,
           systemProgram: SystemProgram.programId,
           tokenProgram: TOKEN_PROGRAM_ID,
         })
-        .signers([mintKeypair])
+        .signers([mintKeypair, issuanceAuthority])
         .rpc();
 
       assert.fail("expected InvalidUnitCount, but the call succeeded");
@@ -134,11 +205,12 @@ describe("initialize_sukuk", () => {
       .accounts({
         sukukAsset: sukukPda,
         mint: first.publicKey,
-        authority: authority.publicKey,
+        payer: payer.publicKey,
+        authority: issuanceAuthority.publicKey,
         systemProgram: SystemProgram.programId,
         tokenProgram: TOKEN_PROGRAM_ID,
       })
-      .signers([first])
+      .signers([first, issuanceAuthority])
       .rpc();
 
     // The PDA already exists, so `init` must fail — this is what stops
@@ -150,11 +222,12 @@ describe("initialize_sukuk", () => {
         .accounts({
           sukukAsset: sukukPda,
           mint: second.publicKey,
-          authority: authority.publicKey,
+          payer: payer.publicKey,
+          authority: issuanceAuthority.publicKey,
           systemProgram: SystemProgram.programId,
           tokenProgram: TOKEN_PROGRAM_ID,
         })
-        .signers([second])
+        .signers([second, issuanceAuthority])
         .rpc();
 
       assert.fail("expected the duplicate asset_id to be rejected");

@@ -62,6 +62,7 @@ describe("distribute-profit", () => {
       .accountsPartial({
         sukukAsset: sukukPda,
         mint: mintKeypair.publicKey,
+        payer: authority.publicKey,
         authority: authority.publicKey,
         systemProgram: SystemProgram.programId,
         tokenProgram: TOKEN_PROGRAM_ID,
@@ -132,6 +133,7 @@ describe("distribute-profit", () => {
       .distributeProfit(new anchor.BN(assetId), new anchor.BN(rent))
       .accountsPartial({
         sukukAsset: sukukPda,
+        distributor: authority.publicKey,
         authority: authority.publicKey,
         systemProgram: SystemProgram.programId,
       })
@@ -171,6 +173,7 @@ describe("distribute-profit", () => {
         .distributeProfit(new anchor.BN(assetId), new anchor.BN(rent))
         .accountsPartial({
           sukukAsset: sukukPda,
+          distributor: authority.publicKey,
           authority: authority.publicKey,
           systemProgram: SystemProgram.programId,
         })
@@ -195,6 +198,7 @@ describe("distribute-profit", () => {
         .distributeProfit(new anchor.BN(assetId), new anchor.BN(1_000_000))
         .accountsPartial({
           sukukAsset: sukukPda,
+          distributor: authority.publicKey,
           authority: authority.publicKey,
           systemProgram: SystemProgram.programId,
         })
@@ -215,6 +219,7 @@ describe("distribute-profit", () => {
         .distributeProfit(new anchor.BN(assetId), new anchor.BN(1_000_000))
         .accountsPartial({
           sukukAsset: sukukPda,
+          distributor: authority.publicKey,
           authority: authority.publicKey,
           systemProgram: SystemProgram.programId,
         })
@@ -239,6 +244,7 @@ describe("distribute-profit", () => {
         .distributeProfit(new anchor.BN(sukukA.assetId), new anchor.BN(1_000_000))
         .accountsPartial({
           sukukAsset: sukukA.sukukPda,
+          distributor: authority.publicKey,
           authority: authority.publicKey,
           systemProgram: SystemProgram.programId,
         })
@@ -265,6 +271,7 @@ describe("distribute-profit", () => {
         .distributeProfit(new anchor.BN(assetId), new anchor.BN(0))
         .accountsPartial({
           sukukAsset: sukukPda,
+          distributor: authority.publicKey,
           authority: authority.publicKey,
           systemProgram: SystemProgram.programId,
         })
@@ -298,6 +305,7 @@ describe("distribute-profit", () => {
       .distributeProfit(new anchor.BN(assetId), new anchor.BN(10))
       .accountsPartial({
         sukukAsset: sukukPda,
+        distributor: authority.publicKey,
         authority: authority.publicKey,
         systemProgram: SystemProgram.programId,
       })
