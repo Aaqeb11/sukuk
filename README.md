@@ -1,6 +1,8 @@
 # Tokenized Sukuk — Proof of Concept
 
-A working proof-of-concept for issuing **Sukuk** (Islamic asset-backed securities) as tokens on Solana, built around two things most token demos skip: a custody boundary the issuance key cannot cross, and a deterministic Shariah screening engine that runs before anything is minted.
+A working proof-of-concept for issuing **Sukuk** (Islamic asset-backed securities) as tokens on Solana. One HTTP request screens an asset against a board-certified template, creates a signing key inside a security boundary only if it passes, signs the issuance inside that boundary, and lands a Sukuk on-chain.
+
+It is built around the two things most token demos skip: a custody boundary the issuance key never crosses, and a deterministic Shariah screening engine that runs before anything is minted.
 
 > **Scope:** this is a technical proof-of-concept, not a financial product. No real asset, no real capital, no real investors. No Shariah board has certified anything here. Devnet only. See [What this is not](#what-this-is-not).
 
@@ -30,6 +32,25 @@ A complete lifecycle has been run end to end on devnet. The [Sukuk account](http
 The [mint account](https://explorer.solana.com/address/cue3U7QuSkatLWkzSyoyn3oTUTDKNARAUZujn4iCJG5?cluster=devnet) is worth a look too: its mint authority is the program's PDA, not any wallet — so no keypair in existence can mint units. Supply is 0 after redemption.
 
 Reproduce the whole run with `bun run scripts/seed-devnet.ts`.
+
+### Issued through the API
+
+The lifecycle above was driven by a script holding local keypairs. This one was not:
+
+| | |
+|---|---|
+| Transaction | [`4z7UhvQ…`](https://explorer.solana.com/tx/4z7UhvQMtvG1Ymrrknq6MRbHRzmEk2EnXaFwqwGAy4C4SLfiLxnhgUKbDayjnt2QET8PAhBJRQpcz6pv5kqtBdVe?cluster=devnet) |
+| Sukuk account | [`bVKWT14…`](https://explorer.solana.com/address/bVKWT14Gnw1jZ7uJSMBKfN7BTdsioHgQW4rBDcMPpDD?cluster=devnet) |
+| Issuance authority | [`DXyk7pV…`](https://explorer.solana.com/address/DXyk7pVFWsMUxcRd6qdWZWAZaWoJ59RgixbEEgLitzLj?cluster=devnet) |
+
+One `POST /sukuk/issue`: the asset was screened against a certified template, an
+Ed25519 key was created inside Vault *because* it passed, the transaction was
+signed inside that boundary, and the result was submitted.
+
+Open the authority account. It signed a transaction that created two accounts
+and it holds **zero SOL** — the fee payer paid for everything. It has no private
+half anywhere outside Vault, and because the program marks it non-`mut`, the
+Solana runtime itself refuses to debit it.
 
 ---
 
@@ -135,6 +156,8 @@ flowchart TB
     end
 
     subgraph API["Off-chain — api/ (NestJS)"]
+        HTTP["POST /sukuk/issue"]
+        ORCH["SukukService<br/>screen · key · build · sign · submit"]
         SCREEN["Compliance engine<br/>template · operators · evaluator"]
         CUST["Custody service<br/>generate · sign · audit"]
         VAULT["Vault Transit<br/>non-exportable ed25519"]
@@ -142,12 +165,16 @@ flowchart TB
 
     subgraph SCRIPTS["Client"]
         SEED["seed-devnet.ts<br/>full lifecycle runner"]
-        TESTS["Test suite<br/>per-instruction · lifecycle · custody"]
+        TESTS["Test suite<br/>per-instruction · lifecycle<br/>custody · issuance"]
     end
 
-    SCREEN -->|"pass"| CUST
+    HTTP --> ORCH
+    ORCH --> SCREEN
+    SCREEN -->|"pass"| ORCH
+    ORCH --> CUST
     CUST --> VAULT
-    VAULT -->|"signature only"| IX
+    VAULT -->|"signature only"| ORCH
+    ORCH -->|"signed transaction"| IX
 
     SEED --> IX
     TESTS --> IX
@@ -158,15 +185,16 @@ flowchart TB
     classDef chain fill:#d1e7ff,stroke:#1565c0,color:#000;
     classDef off fill:#e8dff5,stroke:#6a1b9a,color:#000;
     class ASSET,MINT,INV,IX chain;
-    class SCREEN,CUST,VAULT off;
+    class HTTP,ORCH,SCREEN,CUST,VAULT off;
 ```
 
 ### Module layout
 
 ```
 anchor/   Rust — Anchor program (the on-chain lifecycle)     [built]
-api/      TS  — compliance engine + custody service          [built]
-          TS  — sukuk orchestration (screen → sign → submit) [in progress]
+api/      TS  — compliance engine                            [built]
+          TS  — custody service (Vault Transit)              [built]
+          TS  — sukuk orchestration (screen → sign → submit) [built]
 web/      TS  — dashboard                                    [planned]
 ```
 
@@ -229,6 +257,66 @@ Three decisions worth naming:
 **Operators are a `Record<Operator, OperatorFn>`.** TypeScript refuses to compile if an operator is added to the union without an implementation — the completeness check is structural rather than a test someone has to remember to write.
 
 The criteria are *asset* screens — title, encumbrance, tangibility ratio, tenant activity, ownership risk retained, buyback not at par — not the equity screens (debt ratios, revenue thresholds) that Dow Jones and S&P use for stock indices. Those answer a different question and would be the wrong instrument here.
+
+---
+
+## Issuance
+
+Compliance and custody do not know about each other. Neither imports the other — the compliance engine is a pure function over JSON that runs with no Vault present, and custody is bytes-in-bytes-out with no opinion about Shariah. One module depends on both, and **the order in which it calls them is the control**:
+
+```
+screen → (pass) → generate key → build → sign → submit
+```
+
+Because the issuance key is created only *after* a pass, the existence of a key for an asset is itself evidence that the asset passed. There is no key lying around that could have authorised an issuance for a rejected one. `test/sukuk.spec.ts` asserts exactly that: after a failing asset is rejected, Vault holds no key for it.
+
+```bash
+curl -X POST localhost:3001/sukuk/issue -H 'Content-Type: application/json' \
+  -d '{"templateId":"ijara-real-estate-v1","totalUnits":1000,"asset":{...}}'
+```
+
+```jsonc
+{
+  "assetId": "AST-001",
+  "onChainAssetId": "5422762544915113430",
+  "screening": {
+    "templateId": "ijara-real-estate-v1",
+    "templateVersion": "1.0.0",
+    "certifiedBy": "Example Shariah Supervisory Board",
+    "expiresAt": "2027-01-15",
+    "conditionsEvaluated": 10,
+    "hash": "0958ab14d00b006b365daad037cbb0e7a21bba526b0ad66acce33db65bcd2146"
+  },
+  "custody": {
+    "provider": "vault-transit",
+    "handle": "issuer-AST-001",
+    "authority": "DXyk7pVFWsMUxcRd6qdWZWAZaWoJ59RgixbEEgLitzLj"
+  },
+  "chain": { "signature": "4z7UhvQ…", "sukukAccount": "bVKWT14…", "mint": "AugiQCZ…" }
+}
+```
+
+An asset that fails returns **422** with every condition that failed — not just the first. An issuer who has to resubmit four times to discover four problems will not use the platform twice.
+
+### The screening hash
+
+`screening.hash` is a SHA-256 over the decision: template identity and version, the certification block, and the verdict on every individual condition. It is recorded as the custody signing reason, so the audit trail answers a specific question —
+
+> this signature authorised this issuance, which this screening against this board-certified template permitted
+
+— rather than merely recording that a signature happened. It is not yet written on-chain. When it is, the instrument itself will carry proof of the screening that allowed it to exist, which is "certify once, replicate many" rendered as evidence rather than as a claim.
+
+### Three implementation decisions
+
+**Build, sign and submit are separate.** A single `issue()` on the chain client that called custody internally would have been fewer lines, and would have buried the most important sequence in the system inside a method nobody opens. Split, it reads top to bottom in one function — which is what you hand a security reviewer.
+
+**Anchor gets a wallet that cannot sign.** Anchor requires a wallet to construct a `Program`. Giving it a real keypair would mean that one careless `.rpc()` instead of `.instruction()` signs locally and bypasses custody entirely — and succeeds, and looks correct. The provider's wallet throws on every signing path, so that mistake fails at the point it is made.
+
+**String asset IDs, u64 PDA seeds.** Compliance works in `"AST-001"`; the program's seed is a `u64`. The bridge is the first eight bytes of `sha256(assetId)` with the top bit cleared — deterministic from the ID alone, so there is no counter and no lookup table to keep in sync between whoever screens an asset and whoever issues it.
+
+### Failures say which step refused
+
+A screening rejection is the system working. Anything downstream failing is an outage. The two map to different status codes (422 and 503) because a caller that cannot tell them apart will retry the wrong one.
 
 ---
 
@@ -298,9 +386,28 @@ vault server -dev -dev-root-token-id=dev-only-token
 vault secrets enable transit
 
 cd api
-export VAULT_ADDR=http://127.0.0.1:8200 VAULT_TOKEN=dev-only-token
-bun run vitest run test/      # includes live custody integration tests
-bun run start:dev
+cp .env.example .env          # then fill in VAULT_TOKEN, SOLANA_RPC_URL, SOLANA_PAYER_KEYPAIR
+bun run sync:idl              # after every `anchor build`
+bun test                      # includes live custody and issuance tests
+bun run start:dev             # docs at /docs
+```
+
+Issue something:
+
+```bash
+curl -s -X POST localhost:3001/sukuk/issue \
+  -H 'Content-Type: application/json' \
+  -d "$(jq -n --argjson asset "$(cat fixtures/AST-001.json)" \
+        '{templateId: "ijara-real-estate-v1", totalUnits: 1000, asset: $asset}')" | jq
+```
+
+And watch one be refused — 422, with no key created and nothing submitted:
+
+```bash
+curl -s -X POST localhost:3001/sukuk/issue \
+  -H 'Content-Type: application/json' \
+  -d "$(jq -n --argjson asset "$(cat fixtures/AST-003.json)" \
+        '{templateId: "ijara-real-estate-v1", totalUnits: 1000, asset: $asset}')" | jq
 ```
 
 ### Tests
@@ -314,18 +421,19 @@ bun run start:dev
 | `anchor/tests/sukuk.test.ts` | Full lifecycle composed across two periods |
 | `api/test/evaluator.spec.ts` | Screening against real templates and fixtures loaded from disk |
 | `api/test/custody.spec.ts` | Live Vault — signature verification, determinism, non-exportability, error taxonomy |
+| `api/test/sukuk.spec.ts` | Issuance — the ordering control, stage attribution, and that a Vault signature satisfies a real Solana transaction |
 
 Tests are written against the Anchor client rather than raw instruction encoding, so the patterns carry directly into `api/` and `web/`.
+
+The issuance tests replace exactly one thing: the RPC round trip. The substitute still builds a genuine `Transaction`, still hands over genuine `serializeMessage()` bytes, and still calls `verifySignatures()` — the same check the validator performs. Devnet would have added latency, SOL cost and flakiness while proving nothing further.
 
 ---
 
 ## Roadmap
 
-**Next — `sukuk/` orchestration.** The one module that depends on both compliance and custody: screen the asset, generate the issuer key only on a pass, build the transaction, sign it through custody, submit. Neither existing module imports the other, so "screening passed" and "issuance signed" stay two separately auditable facts.
+**Next — put the screening hash on-chain.** A field on `SukukAsset` carrying the hash the API already computes. Today the link between "this screening permitted it" and "this key signed it" exists only in the custody audit trail; on-chain, the instrument itself carries the proof, and it survives the API being restarted, replaced, or disbelieved.
 
-**Then — bind the two.** Hash the screening result (template ID and version, certification block, per-condition verdicts) and record it both on-chain and in the custody audit trail, so the chain of custody reads: *this signature authorised this issuance, which this screening against this board-certified template permitted*. That is "certify once, replicate many" rendered as evidence rather than as a claim.
-
-**Then — dashboard (`web/`).** Holdings, distribution history, and a supply chart showing outstanding units shrinking across periods.
+**Then — dashboard (`web/`).** Holdings, distribution history, a supply chart showing outstanding units shrinking across periods, and the screening record behind each issuance.
 
 **Under consideration:**
 - **Allowlist enforcement on-chain** — an allowlist PDA per (sukuk, investor) so `mint_units` can only target screened investors.
@@ -357,7 +465,7 @@ Named rather than hidden, because they're genuine and mostly not code problems:
 
 **Transfer permissioning.** With a vanilla SPL mint, holders can transfer to any address via the Token Program directly, bypassing the program entirely. Enforcing an allowlist at the token level needs Token-2022 transfer hooks.
 
-**Screening is not enforced on-chain.** Nothing in the program requires that an asset passed compliance before `initialize_sukuk` runs — that ordering lives in application code today. Recording the screening hash on-chain is the fix, and it is the next piece of work.
+**Screening is not enforced on-chain.** The API will not issue without a pass, and the custody key for an asset exists only because it passed — but nothing in the *program* requires it. Anyone holding the fee payer's keypair and a custody handle could call `initialize_sukuk` directly. The ordering is a property of the application, not of the instrument. Recording the screening hash on-chain narrows this; genuinely closing it means the program verifying a signature from a screening authority, which is a larger design question about who that authority is.
 
 **Distribution dust.** Integer division truncates, so distributed totals can fall short of rent collected by up to (holders − 1). Real systems need an explicit remainder policy. There is a test pinning this behaviour rather than papering over it.
 
