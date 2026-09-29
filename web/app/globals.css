@@ -1,50 +1,108 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ---------------------------------------------------------------------------
+   Brand
+   Ink and cream rather than pure black and white: a near-black with a blue
+   cast reads as considered, and #FFF on #000 is the harshest pairing on a
+   screen. Emerald carries Islamic-finance convention without the cliché;
+   gold is used sparingly, for the seal and for the one thing worth clicking.
+--------------------------------------------------------------------------- */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --ink: #0b1220;
+  --ink-raised: #101a2b;
+  --ink-line: #1c2738;
+  --cream: #f6f4ee;
+  --emerald: #0e7c66;
+  --emerald-bright: #14b88a;
+  --gold: #c9a227;
+  --gold-bright: #e0b93f;
+  --muted: #8a99ab;
+
+  --radius: 0.65rem;
+
+  /* shadcn tokens, mapped onto the brand */
+  --background: var(--ink);
+  --foreground: var(--cream);
+  --card: var(--ink-raised);
+  --card-foreground: var(--cream);
+  --popover: var(--ink-raised);
+  --popover-foreground: var(--cream);
+  --primary: var(--gold);
+  --primary-foreground: var(--ink);
+  --secondary: var(--ink-line);
+  --secondary-foreground: var(--cream);
+  --muted-background: var(--ink-line);
+  --muted-foreground: var(--muted);
+  --accent: var(--emerald);
+  --accent-foreground: var(--cream);
+  --destructive: #e5484d;
+  --border: var(--ink-line);
+  --input: var(--ink-line);
+  --ring: var(--emerald-bright);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted-background);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-ink: var(--ink);
+  --color-ink-raised: var(--ink-raised);
+  --color-ink-line: var(--ink-line);
+  --color-cream: var(--cream);
+  --color-emerald: var(--emerald);
+  --color-emerald-bright: var(--emerald-bright);
+  --color-gold: var(--gold);
+  --color-gold-bright: var(--gold-bright);
+
+  --font-sans: var(--font-plex-sans);
+  --font-display: var(--font-space-grotesk);
+  --font-mono: var(--font-plex-mono);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "ss01", "cv05";
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection {
+    background: var(--emerald);
+    color: var(--cream);
   }
 }
 
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
-}
-
-body {
-  color: var(--foreground);
-  background: var(--background);
-}
-
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-.imgDark {
-  display: none;
-}
-
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
-
-  .imgLight {
-    display: none;
-  }
-  .imgDark {
-    display: unset;
-  }
+/* A faint seal, far off in the background. Decorative only — it sits behind
+   everything at low opacity and is hidden from assistive tech. */
+.seal-wash {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
 }
