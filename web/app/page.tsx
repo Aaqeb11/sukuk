@@ -29,7 +29,7 @@ function XIcon({ className }: { className?: string }) {
 /* ---------------------------------------------------------------------------
    TODO — replace these two before you ship.
 --------------------------------------------------------------------------- */
-const GITHUB = "https://github.com/YOUR-HANDLE/sukuk";
+const GITHUB = "https://github.com/aaqeb11/sukuk";
 const X_URL = "https://x.com/AaqebAhmed";
 
 const EXPLORER = "https://explorer.solana.com";
