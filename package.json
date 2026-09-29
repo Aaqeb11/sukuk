@@ -18,6 +18,10 @@
     "turbo": "^2.10.11",
     "typescript": "^7.0.2"
   },
+  "overrides": {
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0"
+  },
   "engines": {
     "node": ">=18"
   },
