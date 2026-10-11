@@ -132,23 +132,33 @@ function Hero() {
           <div>
             <Badge variant="accent">Real World Assets · Solana</Badge>
 
-            <h1 className="mt-7 font-display text-[2rem] font-bold leading-[1.12] tracking-[-0.02em] text-cream sm:text-[2.9rem] sm:leading-[1.1]">
-              List an asset.
+            <h1 className="mt-7 font-display text-[2.1rem] font-bold leading-[1.1] tracking-[-0.02em] text-cream sm:text-[3rem] sm:leading-[1.06]">
+              Own a square foot
               <br />
-              Raise against it.
+              of a tower.
               <br />
-              Pay investors.
-              <br />
-              <span className="text-gold-bright">Buy it back.</span>
+              <span className="text-gold-bright">Earn its rent.</span>
             </h1>
 
             <p className="mt-7 max-w-xl text-lg leading-relaxed text-muted-foreground">
-              The whole life of a Shariah-compliant instrument in one place —
-              screening, issuance, investor subscriptions, profit distribution,
-              buyback and closure. A board certifies a{" "}
-              <em className="not-italic text-cream">template</em> once; every
-              asset after that is screened against it automatically.
+              Owning property that pays rent has always taken millions. Sukuk
+              splits a real building into small units anyone can hold. Own a
+              unit and you own that slice of the building, and you get that
+              slice of the rent every period. There&apos;s no interest and no
+              promised return, just your share of what the building actually
+              earns.
             </p>
+
+            <div className="mt-8 grid max-w-xl gap-3 sm:grid-cols-2">
+              <Audience
+                who="If you invest"
+                text="Hold as little as one unit of an office tower, a warehouse or a mall. Rent arrives in your wallet in proportion to what you own."
+              />
+              <Audience
+                who="If you own the asset"
+                text="List it, have it screened against pre-approved rules in seconds, raise against it, and buy it back over time."
+              />
+            </div>
 
             <div className="mt-9 flex flex-wrap gap-3">
               <Button asChild size="lg">
@@ -165,30 +175,81 @@ function Hero() {
               </Button>
             </div>
 
-            <dl className="mt-11 grid max-w-lg grid-cols-3 gap-4 border-t border-border pt-7 sm:gap-6">
-              <Stat value="5" label="stages, all on-chain" />
-              <Stat value="0 SOL" label="held by the signing key" />
-              <Stat value="0" label="board reviews after the first" />
-            </dl>
+            <p className="mt-5 max-w-xl text-[13px] leading-relaxed text-muted-foreground/80">
+              A working proof of concept on Solana devnet. No real buildings,
+              investors or money, and nothing here is offered for sale.
+            </p>
           </div>
 
-          <Lifecycle />
+          <div className="space-y-5">
+            <SliceExample />
+            <Lifecycle />
+          </div>
         </div>
       </div>
     </section>
   );
 }
 
-function Stat({ value, label }: { value: string; label: string }) {
+function Audience({ who, text }: { who: string; text: string }) {
   return (
-    <div>
-      <dt className="font-display text-xl font-bold text-gold-bright sm:text-2xl">
-        {value}
-      </dt>
-      <dd className="mt-1.5 text-xs leading-snug text-muted-foreground sm:text-[13px]">
-        {label}
-      </dd>
+    <div className="rounded-xl border border-border bg-card/60 p-4">
+      <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-emerald-bright">
+        {who}
+      </p>
+      <p className="mt-2 text-sm leading-relaxed text-cream/90">{text}</p>
     </div>
+  );
+}
+
+/**
+ * The vision in one picture: a building cut into units, rent following
+ * ownership. The figures are an illustration, labelled as one. The
+ * arithmetic is the same pro-rata split distribute_profit does on-chain.
+ */
+function SliceExample() {
+  const steps = [
+    { value: "100,000 sq ft", label: "one tower" },
+    { value: "100,000 units", label: "one per square foot" },
+    { value: "AED 10", label: "to each unit" },
+  ];
+  return (
+    <Card className="overflow-hidden bg-[#0d1626]">
+      <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
+        <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+          How a slice pays
+        </span>
+        <span className="rounded-full border border-border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+          Illustration
+        </span>
+      </div>
+      <CardContent className="p-5">
+        <ol className="grid grid-cols-3 gap-2">
+          {steps.map((s, i) => (
+            <li key={s.label} className="relative">
+              <p className="whitespace-nowrap font-display text-[13px] font-bold text-cream min-[400px]:text-sm sm:text-lg">
+                {s.value}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">{s.label}</p>
+              {i < steps.length - 1 && (
+                <span
+                  aria-hidden="true"
+                  className="absolute right-1 top-1 hidden text-gold-bright sm:block"
+                >
+                  →
+                </span>
+              )}
+            </li>
+          ))}
+        </ol>
+        <p className="mt-4 border-t border-border pt-4 text-sm leading-relaxed text-muted-foreground">
+          The tower earns <span className="text-cream">AED 1,000,000</span> in
+          rent this period, and every unit gets an equal cut. Hold 1 unit, get
+          AED 10. Hold 250 units, get AED 2,500. A quiet period pays less, because
+          nothing is guaranteed.
+        </p>
+      </CardContent>
+    </Card>
   );
 }
 

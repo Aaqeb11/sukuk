@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import type { ReactElement, ReactNode } from "react";
 import { IBM_Plex_Mono, IBM_Plex_Sans, Space_Grotesk } from "next/font/google";
 
@@ -23,19 +24,20 @@ const plexMono = IBM_Plex_Mono({
 });
 
 const DESCRIPTION =
-  "List an asset, raise against it, pay investors and buy it back — the whole life of a Shariah-compliant instrument in one platform. A board certifies a template once; every asset afterwards is screened against it automatically.";
+  "Own a slice of a real building and earn your share of its rent, with no interest and no promised return. Sukuk tokenizes income-producing assets on Solana: owners list and raise, investors hold units and get paid pro-rata. A proof of concept on devnet.";
 
 export const metadata: Metadata = {
-  title: "Sukuk — the platform for Shariah-compliant asset tokenization",
+  metadataBase: new URL("https://sukukinvest.xyz"),
+  title: "Sukuk — own a slice of a building, earn its rent",
   description: DESCRIPTION,
   openGraph: {
-    title: "Sukuk — list, raise, distribute, buy back",
+    title: "Sukuk — own a slice of a building, earn its rent",
     description: DESCRIPTION,
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Sukuk — list, raise, distribute, buy back",
+    title: "Sukuk — own a slice of a building, earn its rent",
     description: DESCRIPTION,
   },
 };
@@ -49,6 +51,7 @@ export default function RootLayout({
         className={`${spaceGrotesk.variable} ${plexSans.variable} ${plexMono.variable} font-sans antialiased`}
       >
         {children}
+        <Analytics />
       </body>
     </html>
   );
