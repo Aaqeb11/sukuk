@@ -31,7 +31,7 @@ function XIcon({ className }: { className?: string }) {
    TODO — replace these two before you ship.
 --------------------------------------------------------------------------- */
 const GITHUB = "https://github.com/aaqeb11/sukuk";
-const X_URL = "https://x.com/AaqebAhmed";
+const X_URL = "https://x.com/sukukinvest";
 
 const EXPLORER = "https://explorer.solana.com";
 const CLUSTER = "?cluster=devnet";
