@@ -1,0 +1,36 @@
+{
+  "asset_id": "AST-002",
+  "asset_type": "real_estate",
+  "name": "Jebel Ali Logistics Warehouse",
+  "valuation": 21500000,
+  "currency": "AED",
+  "jurisdiction": "AE-DU",
+
+  "ownership": {
+    "title_reference": "DLD-2023-41907",
+    "clear_title": true,
+    "encumbered": false,
+    "transferable": true
+  },
+
+  "income": {
+    "type": "rent",
+    "annual_amount": 1720000,
+    "currency": "AED",
+    "impure_proportion": 0.031,
+    "impure_source": "vending concession operated by a third party"
+  },
+
+  "tenant": {
+    "name": "Gulf Freight Holdings",
+    "activity": "logistics",
+    "lease_term_years": 10
+  },
+
+  "structure": {
+    "type": "diminishing-musharaka",
+    "tangible_proportion": 0.88,
+    "ownership_risk_retained": true,
+    "buyback_at_par": false
+  }
+}

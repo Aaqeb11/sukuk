@@ -1,0 +1,97 @@
+{
+  "template_id": "ijara-real-estate-v1",
+  "version": "1.0.0",
+  "name": "Real Estate — Diminishing Musharaka",
+  "structure": "diminishing-musharaka",
+
+  "_note": "PLACEHOLDER CONDITIONS. These illustrate the mechanism, not certified Shariah criteria. Thresholds and permitted-activity lists must be set by an actual Shariah Supervisory Board. The engine applies whatever conditions a board defines; it does not decide them.",
+
+  "certification": {
+    "certified_by": "Example Shariah Supervisory Board",
+    "certified_at": "2026-01-15",
+    "expires_at": "2027-01-15",
+    "reference": "FATWA-EXAMPLE-2026-001"
+  },
+
+  "conditions": [
+    {
+      "id": "asset-type",
+      "field": "asset_type",
+      "op": "in",
+      "value": ["real_estate"],
+      "description": "The asset must be real estate. This template was certified for that asset class only; other classes require fresh board review."
+    },
+    {
+      "id": "title-identified",
+      "field": "ownership.title_reference",
+      "op": "exists",
+      "value": true,
+      "description": "The asset must be specifically identified by title reference. Unspecified or fungible pools introduce gharar (excessive uncertainty)."
+    },
+    {
+      "id": "clear-title",
+      "field": "ownership.clear_title",
+      "op": "equals",
+      "value": true,
+      "description": "The issuer must hold clean title. Ownership must genuinely transfer to the SPV, not merely appear to."
+    },
+    {
+      "id": "unencumbered",
+      "field": "ownership.encumbered",
+      "op": "equals",
+      "value": false,
+      "description": "The asset must be free of existing charges, mortgages or liens that would conflict with investor ownership."
+    },
+    {
+      "id": "income-is-rent",
+      "field": "income.type",
+      "op": "equals",
+      "value": "rent",
+      "description": "Returns must derive from rent on a real asset, never from interest on a loan. Interest-bearing income is riba."
+    },
+    {
+      "id": "tenant-activity",
+      "field": "tenant.activity",
+      "op": "not_in",
+      "value": [
+        "gambling",
+        "alcohol",
+        "pork",
+        "conventional_banking",
+        "conventional_insurance",
+        "adult_entertainment",
+        "tobacco",
+        "weapons"
+      ],
+      "description": "Rent from a prohibited business activity is impure income. Business-activity screening applies to whoever occupies the asset."
+    },
+    {
+      "id": "impure-income-limit",
+      "field": "income.impure_proportion",
+      "op": "lte",
+      "value": 0.05,
+      "description": "Incidental impure income must stay below 5% of gross income, and the impure portion must be purified through charitable donation (tathir)."
+    },
+    {
+      "id": "tangibility",
+      "field": "structure.tangible_proportion",
+      "op": "gte",
+      "value": 0.51,
+      "description": "A majority of the underlying must be tangible assets rather than receivables, otherwise the instrument becomes debt-like and cannot be freely traded on the secondary market."
+    },
+    {
+      "id": "ownership-risk",
+      "field": "structure.ownership_risk_retained",
+      "op": "equals",
+      "value": true,
+      "description": "The owner must retain genuine ownership risk — major maintenance, insurance, total loss. A lease that passes every risk to the lessee is a loan in costume."
+    },
+    {
+      "id": "no-guaranteed-principal",
+      "field": "structure.buyback_at_par",
+      "op": "equals",
+      "value": false,
+      "description": "Buyback must not be fixed at face value. A purchase undertaking at par effectively guarantees principal, reintroducing exactly what the structure exists to avoid."
+    }
+  ]
+}

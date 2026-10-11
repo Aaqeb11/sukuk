@@ -5,6 +5,7 @@ import type { ReactElement } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { TryIt } from "@/components/try-it/try-it";
 
 /**
  * lucide-react v1 dropped brand icons, so GitHub and X are inline SVG.
@@ -51,6 +52,7 @@ export default function Home() {
       <Nav />
       <main>
         <Hero />
+        <TryIt />
         <Platform />
         <Assurances />
         <OnChain />
@@ -76,6 +78,12 @@ function Nav() {
           </span>
         </a>
         <div className="flex items-center gap-5">
+          <a
+            href="#try"
+            className="hidden text-sm text-muted-foreground transition-colors hover:text-cream sm:block"
+          >
+            Try it
+          </a>
           <a
             href="#platform"
             className="hidden text-sm text-muted-foreground transition-colors hover:text-cream sm:block"
@@ -144,8 +152,8 @@ function Hero() {
 
             <div className="mt-9 flex flex-wrap gap-3">
               <Button asChild size="lg">
-                <a href="#on-chain">
-                  Follow a live Sukuk
+                <a href="#try">
+                  Try it yourself
                   <ArrowUpRight />
                 </a>
               </Button>
