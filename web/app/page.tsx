@@ -52,6 +52,7 @@ export default function Home() {
       <Nav />
       <main>
         <Hero />
+        <Why />
         <TryIt />
         <Platform />
         <Assurances />
@@ -78,6 +79,12 @@ function Nav() {
           </span>
         </a>
         <div className="flex items-center gap-5">
+          <a
+            href="#why"
+            className="hidden text-sm text-muted-foreground transition-colors hover:text-cream sm:block"
+          >
+            How it works
+          </a>
           <a
             href="#try"
             className="hidden text-sm text-muted-foreground transition-colors hover:text-cream sm:block"
@@ -250,6 +257,134 @@ function SliceExample() {
         </p>
       </CardContent>
     </Card>
+  );
+}
+
+/* --------------------------------------------------------------------------
+   Why this exists — the problem and the answer, in plain words.
+
+   Written for someone who has never heard the word Sukuk. Each row pairs one
+   problem with the part of the platform that answers it, so a reader can
+   check the claim against the demo directly below.
+-------------------------------------------------------------------------- */
+
+const PROBLEMS = [
+  {
+    who: "For investors",
+    problem: "Most ways to grow money pay interest.",
+    problemBody:
+      "Savings accounts, bonds and most funds earn interest. For Muslims that is off-limits, and many others simply want returns from real things rather than from lending. Owning property that pays rent is the obvious alternative, but it takes millions to buy in.",
+    solution: "Own a slice of a real asset, from a single unit.",
+    solutionBody:
+      "A building is split into small units. Hold some and you own that share of it, and you receive that share of the rent each period. There's no interest and no promised return, just what the asset really earns. Open to anyone, Muslim or not.",
+  },
+  {
+    who: "For asset owners",
+    problem: "Raising money the halal way is slow and expensive.",
+    problemBody:
+      "Today every new Sukuk needs its own Shariah board review, lawyers and arrangers, and months of structuring. That only makes sense for very large deals, so most owners never get access to it.",
+    solution: "Checked in seconds against rules approved once.",
+    solutionBody:
+      "A Shariah board approves a set of rules for a type of asset one time. After that, each new asset is checked against those rules automatically. If it passes, it can be issued and opened to investors straight away.",
+  },
+  {
+    who: "For everyone",
+    problem: "You have to trust the paperwork.",
+    problemBody:
+      "Who owns how much, whether rent was really paid out, and whether extra shares were quietly created all sit in private records that investors can't see.",
+    solution: "The blockchain keeps the books, in public.",
+    solutionBody:
+      "Ownership, every rent payment and every buyback are recorded on Solana, where anyone can check them. Nobody, including the issuer, can create extra units, and the key that issues them is locked away where no one can copy it.",
+  },
+];
+
+const HOW = [
+  { title: "List", body: "An owner puts forward an income-producing asset." },
+  { title: "Check", body: "It's screened against the pre-approved Shariah rules." },
+  { title: "Invest", body: "Investors buy units. Each unit is a share of the asset." },
+  { title: "Earn", body: "Rent is paid out by share, and the owner buys units back over time." },
+];
+
+function Why() {
+  return (
+    <section id="why" className="border-y border-border bg-[#0d1626]">
+      <div className="mx-auto max-w-6xl px-6 py-20">
+        <div className="max-w-3xl">
+          <Badge>Why this exists</Badge>
+          <h2 className="mt-6 font-display text-3xl font-bold leading-tight text-cream sm:text-4xl">
+            Nearly two billion people follow a faith that forbids interest.
+            Almost no investment is built for them.
+          </h2>
+          <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
+            Sukuk are the Islamic alternative to bonds: instead of lending money
+            and earning interest, investors own part of a real asset and share
+            in what it earns. The idea is centuries old. Getting it to ordinary
+            people is the part that has never worked.
+          </p>
+        </div>
+
+        <ol className="mt-14 space-y-4">
+          {PROBLEMS.map((p) => (
+            <li
+              key={p.who}
+              className="grid overflow-hidden rounded-xl border border-border lg:grid-cols-2"
+            >
+              <div className="bg-background/60 p-6 sm:p-7">
+                <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+                  {p.who} · the problem
+                </p>
+                <h3 className="mt-3 font-display text-xl font-bold leading-snug text-cream">
+                  {p.problem}
+                </h3>
+                <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
+                  {p.problemBody}
+                </p>
+              </div>
+              <div className="border-t border-border bg-card p-6 sm:p-7 lg:border-l lg:border-t-0">
+                <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-emerald-bright">
+                  What Sukuk does
+                </p>
+                <h3 className="mt-3 font-display text-xl font-bold leading-snug text-cream">
+                  {p.solution}
+                </h3>
+                <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
+                  {p.solutionBody}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ol>
+
+        <div className="mt-16">
+          <h3 className="font-display text-2xl font-bold text-cream">
+            How it works, in four steps
+          </h3>
+          <ol className="mt-6 grid gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
+            {HOW.map((h, i) => (
+              <li key={h.title} className="bg-background p-6">
+                <span className="font-mono text-xs tracking-[0.2em] text-gold">
+                  0{i + 1}
+                </span>
+                <p className="mt-2 font-display text-lg font-bold text-cream">
+                  {h.title}
+                </p>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  {h.body}
+                </p>
+              </li>
+            ))}
+          </ol>
+          <p className="mt-6 max-w-3xl text-[15px] leading-relaxed text-muted-foreground">
+            Every step after the check happens on Solana, so ownership and
+            payouts are visible to anyone.{" "}
+            <a href="#try" className="text-emerald-bright underline-offset-4 hover:underline">
+              Try the first two steps yourself below
+            </a>
+            , then follow a real one through to the end.
+          </p>
+        </div>
+      </div>
+    </section>
   );
 }
 
