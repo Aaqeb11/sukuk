@@ -312,8 +312,7 @@ function Why() {
         <div className="max-w-3xl">
           <Badge>Why this exists</Badge>
           <h2 className="mt-6 font-display text-3xl font-bold leading-tight text-cream sm:text-4xl">
-            Nearly two billion people follow a faith that forbids interest.
-            Almost no investment is built for them.
+            Two billion people want to invest without interest. We’re making room for all of them.
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
             Sukuk are the Islamic alternative to bonds: instead of lending money
