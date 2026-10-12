@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Building2, Plane, Ship, Sun, Truck, Warehouse } from "lucide-react";
 import type { ReactElement } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -52,6 +52,7 @@ export default function Home() {
       <Nav />
       <main>
         <Hero />
+        <AssetClasses />
         <Why />
         <TryIt />
         <Platform />
@@ -140,30 +141,29 @@ function Hero() {
             <Badge variant="accent">Real World Assets · Solana</Badge>
 
             <h1 className="mt-7 font-display text-[2.1rem] font-bold leading-[1.1] tracking-[-0.02em] text-cream sm:text-[3rem] sm:leading-[1.06]">
-              Own a square foot
+              Raise capital
               <br />
-              of a tower.
+              without interest.
               <br />
-              <span className="text-gold-bright">Earn its rent.</span>
+              <span className="text-gold-bright">Share in what assets earn.</span>
             </h1>
 
             <p className="mt-7 max-w-xl text-lg leading-relaxed text-muted-foreground">
-              Owning property that pays rent has always taken millions. Sukuk
-              splits a real building into small units anyone can hold. Own a
-              unit and you own that slice of the building, and you get that
-              slice of the rent every period. There&apos;s no interest and no
-              promised return, just your share of what the building actually
-              earns.
+              Sukuk is halal financing on Solana for any asset that earns
+              income: a building, an aircraft, a solar farm, a fleet. Owners
+              raise capital against the asset and buy it back over time.
+              Investors hold small units and receive their share of what it
+              actually earns. No interest, no promised return.
             </p>
 
             <div className="mt-8 grid max-w-xl gap-3 sm:grid-cols-2">
               <Audience
-                who="If you invest"
-                text="Hold as little as one unit of an office tower, a warehouse or a mall. Rent arrives in your wallet in proportion to what you own."
+                who="If you own the asset"
+                text="Raise against it without an interest-bearing loan. It's screened against pre-approved rules in seconds, and you buy ownership back over time, so you keep the asset."
               />
               <Audience
-                who="If you own the asset"
-                text="List it, have it screened against pre-approved rules in seconds, raise against it, and buy it back over time."
+                who="If you invest"
+                text="Hold as little as one unit of a tower, an aircraft or a solar farm. Its income arrives in your wallet in proportion to what you own."
               />
             </div>
 
@@ -183,7 +183,7 @@ function Hero() {
             </div>
 
             <p className="mt-5 max-w-xl text-[13px] leading-relaxed text-muted-foreground/80">
-              A working proof of concept on Solana devnet. No real buildings,
+              A working proof of concept on Solana devnet. No real assets,
               investors or money, and nothing here is offered for sale.
             </p>
           </div>
@@ -224,7 +224,7 @@ function SliceExample() {
     <Card className="overflow-hidden bg-[#0d1626]">
       <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
         <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
-          How a slice pays
+          Example · real estate
         </span>
         <span className="rounded-full border border-border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
           Illustration
@@ -261,6 +261,73 @@ function SliceExample() {
 }
 
 /* --------------------------------------------------------------------------
+   Asset classes.
+
+   The structure works for anything that is leased out and earns income, so
+   the rails are asset-agnostic. Only real estate has a template today; the
+   others are labelled as such rather than implied to be live.
+-------------------------------------------------------------------------- */
+
+const ASSETS = [
+  { icon: Building2, name: "Real estate", income: "Rent from offices, homes, retail", status: "live" },
+  { icon: Plane, name: "Aircraft", income: "Lease payments from airlines", status: "next" },
+  { icon: Sun, name: "Solar & energy", income: "Income from power sold", status: "next" },
+  { icon: Truck, name: "Equipment & fleets", income: "Lease payments from operators", status: "next" },
+  { icon: Ship, name: "Ships & logistics", income: "Charter and lease income", status: "next" },
+  { icon: Warehouse, name: "Warehouses", income: "Rent from logistics tenants", status: "next" },
+] as const;
+
+function AssetClasses() {
+  return (
+    <section id="assets" className="mx-auto max-w-6xl px-6 pb-20">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="max-w-2xl">
+          <Badge>One platform, many assets</Badge>
+          <h2 className="mt-6 font-display text-3xl font-bold leading-tight text-cream sm:text-4xl">
+            Anything that earns income can be financed this way.
+          </h2>
+          <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
+            Sukuk works for any asset that can be leased out. The owner raises
+            capital against it, investors share in the income, and the owner
+            buys it back. Each asset type gets its own Shariah template,
+            approved once and then applied automatically to every asset of
+            that type.
+          </p>
+        </div>
+      </div>
+
+      <ul className="mt-10 grid gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
+        {ASSETS.map((a) => {
+          const Icon = a.icon;
+          return (
+            <li key={a.name} className="flex items-start gap-4 bg-card p-6">
+              <span className="grid size-11 shrink-0 place-items-center rounded-lg border border-border bg-background text-gold-bright">
+                <Icon className="size-5" aria-hidden="true" />
+              </span>
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="font-display text-lg font-bold text-cream">{a.name}</p>
+                  {a.status === "live" ? (
+                    <span className="rounded-full border border-emerald-bright/40 bg-emerald-bright/10 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em] text-emerald-bright">
+                      In the demo
+                    </span>
+                  ) : (
+                    <span className="rounded-full border border-border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+                      Template next
+                    </span>
+                  )}
+                </div>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{a.income}</p>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
+/* --------------------------------------------------------------------------
    Why this exists — the problem and the answer, in plain words.
 
    Written for someone who has never heard the word Sukuk. Each row pairs one
@@ -276,7 +343,7 @@ const PROBLEMS = [
       "Savings accounts, bonds and most funds earn interest. For Muslims that is off-limits, and many others simply want returns from real things rather than from lending. Owning property that pays rent is the obvious alternative, but it takes millions to buy in.",
     solution: "Own a slice of a real asset, from a single unit.",
     solutionBody:
-      "A building is split into small units. Hold some and you own that share of it, and you receive that share of the rent each period. There's no interest and no promised return, just what the asset really earns. Open to anyone, Muslim or not.",
+      "An asset (a building, an aircraft, a solar farm) is split into small units. Hold some and you own that share of it, and you receive that share of its income each period. There's no interest and no promised return, just what the asset really earns. Open to anyone, Muslim or not.",
   },
   {
     who: "For asset owners",

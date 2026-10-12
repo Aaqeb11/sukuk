@@ -24,20 +24,20 @@ const plexMono = IBM_Plex_Mono({
 });
 
 const DESCRIPTION =
-  "Own a slice of a real building and earn your share of its rent, with no interest and no promised return. Sukuk tokenizes income-producing assets on Solana: owners list and raise, investors hold units and get paid pro-rata. A proof of concept on devnet.";
+  "Halal financing on Solana for any asset that earns income: real estate, aircraft, solar, equipment. Owners raise capital without interest and buy it back over time; investors share in what the asset actually earns.";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://sukukinvest.xyz"),
-  title: "Sukuk — own a slice of a building, earn its rent",
+  title: "Sukuk — raise capital without interest, share in what assets earn",
   description: DESCRIPTION,
   openGraph: {
-    title: "Sukuk — own a slice of a building, earn its rent",
+    title: "Sukuk — raise capital without interest, share in what assets earn",
     description: DESCRIPTION,
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Sukuk — own a slice of a building, earn its rent",
+    title: "Sukuk — raise capital without interest, share in what assets earn",
     description: DESCRIPTION,
   },
 };
